@@ -1,21 +1,110 @@
-<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOOD DAV NET CAM PRO — Mobile</title><script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GOOD DAV NET CAM PRO V3 — Téléphone</title>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
-:root{--cyan:#00e5ff;--bg:#060b16;--panel:#101a2b;--line:#263a57}*{box-sizing:border-box}body{margin:0;padding:16px;background:radial-gradient(circle at top,#142443,var(--bg) 55%);color:#eaf5ff;font:16px system-ui,Arial}main{max-width:650px;margin:auto}h1{color:var(--cyan);font-size:25px}section{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:13px 0}video{width:100%;background:#000;border-radius:10px;max-height:55vh;object-fit:contain}label{display:block;color:#a9bfd9;margin:12px 0 5px}input,select{width:100%;padding:13px;border:1px solid #334967;border-radius:9px;background:#07101e;color:#fff}button{padding:13px 15px;margin:5px 3px 5px 0;border:0;border-radius:9px;background:linear-gradient(100deg,var(--cyan),#61a9ff);color:#03111b;font-weight:750}button.secondary{background:#263954;color:white}button.red{background:#ff5470;color:#24040b}button:disabled{opacity:.45}#status{color:#ffd166;line-height:1.5}.id{color:var(--cyan);word-break:break-all}.note{color:#9eb5d3;font-size:13px}
-</style></head><body><main><h1>GOOD DAV NET CAM <span style="color:white">PRO</span></h1><p class="note">CAMÉRA MOBILE · TRANSMISSION EN DIRECT</p>
-<section><b>Votre ID téléphone :</b><p class="id" id="myid">Initialisation…</p><p id="status">Connexion au service…</p></section>
-<section><label>Choisir caméra</label><select id="facing"><option value="environment">Arrière</option><option value="user">Avant</option></select><label>Qualité vidéo</label><select id="quality"><option value="720">HD 720p</option><option value="480">480p (économique)</option><option value="1080">Full HD 1080p (si disponible)</option></select><button id="start">📷 Activer caméra</button><button id="switch" class="secondary" disabled>↻ Changer caméra</button><video id="preview" autoplay playsinline muted></video><p class="note">Gardez cette page ouverte et l'écran allumé pendant la transmission.</p></section>
-<section><label>ID PC (à copier depuis CAM_PC.html)</label><input id="pcid" placeholder="Collez ici l'identifiant du PC"><button id="connect">📡 Connecter au PC</button><button id="hang" class="red" disabled>Déconnecter</button></section>
-<p class="note">Autorisez l'accès à la caméra. La transmission est visible pendant que cette page reste ouverte.</p></main>
+:root{--cyan:#00e5ff;--bg:#050b14;--panel:#0d1828;--line:#263a57;--txt:#eaf5ff;--muted:#9eb5d3;--ok:#32e875;--red:#ff5470}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 20% 0,#142443,var(--bg) 58%);color:var(--txt);font:15px system-ui,Segoe UI,Arial;min-height:100vh}
+header{padding:18px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}h1{margin:0;color:var(--cyan);font-size:22px;letter-spacing:.5px}header small{color:var(--muted)}
+main{max-width:900px;margin:18px auto;padding:0 14px;display:grid;gap:14px}.card{background:linear-gradient(145deg,#111e32,#0b1424);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 10px 35px #0004}h2{font-size:16px;margin:0 0 12px;color:#a8dfff}
+label{display:block;color:#a9bfd9;margin:10px 0 6px}input,select{width:100%;padding:13px;border:1px solid #334967;border-radius:9px;background:#07101e;color:#fff;font-size:16px}button{border:0;border-radius:9px;padding:12px 14px;margin:5px 4px 5px 0;background:linear-gradient(100deg,var(--cyan),#61a9ff);color:#03111b;font-weight:800;cursor:pointer}button.secondary{background:#263954;color:#e9f5ff}button.red{background:var(--red);color:#24040b}button:disabled{opacity:.4;cursor:not-allowed}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}.status{padding:10px 12px;border-radius:9px;background:#07101e;border:1px solid var(--line);color:#ffd166;line-height:1.45}.status.ok{color:var(--ok)}.status.err{color:#ff9baa}.meta{color:var(--muted);font-size:13px;line-height:1.5}.idbox{word-break:break-all;background:#06101c;border:1px dashed #34506e;padding:12px;border-radius:9px;color:var(--cyan);min-height:44px}.video-wrap{position:relative;background:#000;border-radius:14px;overflow:hidden;border:1px solid var(--line)}video{display:block;width:100%;max-height:68vh;aspect-ratio:16/9;object-fit:cover;background:#000}.badge{position:absolute;top:10px;left:10px;background:#190d12;color:#ff9baa;border:1px solid #6b2635;border-radius:999px;padding:6px 9px;font-weight:800}.badge.live{background:#092017;color:#72f0a2;border-color:#225d3d}.pill{display:inline-block;padding:5px 9px;border-radius:99px;background:#17384a;color:#7ff4ff;font-size:12px}.hidden{display:none!important}
+@media(min-width:760px){main{grid-template-columns:330px 1fr;align-items:start}header{padding-left:5%;padding-right:5%}}
+</style>
+</head>
+<body>
+<header><div><h1>GOOD DAV NET CAM <span style="color:#fff">PRO V3</span></h1><small>Caméra mobile · surveillance à distance</small></div><span class="pill">TÉLÉPHONE</span></header>
+<main>
+<section class="card">
+<h2>01 · Connexion au PC</h2>
+<label for="pcid">ID du PC</label>
+<input id="pcid" type="text" autocomplete="off" autocapitalize="characters" placeholder="Ex. GDN-PC-7K4M2Q">
+<div class="row"><button id="connect">📡 Connecter</button><button id="disconnect" class="red" disabled>⛔ Déconnecter</button></div>
+<p id="status" class="status">Prêt. Entrez l'ID affiché sur CAM_PC.html.</p>
+<p class="meta">L'ID du PC est à saisir exactement. La connexion utilise PeerJS/WebRTC.</p>
+<hr style="border-color:#263a57">
+<h2>02 · Caméra</h2>
+<label for="facing">Caméra utilisée</label>
+<select id="facing"><option value="environment">Arrière</option><option value="user">Avant</option></select>
+<div class="row"><button id="startCam">📷 Activer la caméra</button><button id="stopCam" class="secondary" disabled>⏹ Arrêter</button></div>
+</section>
+
+<section class="card">
+<h2>03 · Vidéo envoyée au PC</h2>
+<div class="video-wrap"><video id="preview" autoplay muted playsinline></video><div id="badge" class="badge">CAMÉRA ARRÊTÉE</div></div>
+<div class="row" style="margin-top:8px"><button id="switchCam" class="secondary">🔄 Changer caméra</button><button id="mute" class="secondary">🔇 Micro désactivé</button></div>
+<p id="info" class="meta">Aucune caméra active.</p>
+</section>
+</main>
 <script>
-const $=id=>document.getElementById(id);let peer,local=null,call=null,facing='environment';
-function say(s){$('status').textContent=s}
-peer=new Peer(undefined,{debug:1});
-peer.on('open',id=>$('myid').textContent=id);
-peer.on('error',e=>say('Erreur PeerJS : '+e.type+'. Vérifiez Internet.'));
-async function camera(){try{if(call){call.close();call=null}if(local)local.getTracks().forEach(t=>t.stop());let h=Number($('quality').value);local=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:h},height:{ideal:Math.round(h*9/16)}},audio:true});$('preview').srcObject=local;$('switch').disabled=false;say('Caméra activée. Vous pouvez connecter le PC.')}catch(e){say('Impossible d’ouvrir la caméra : '+e.name+' — '+e.message)}}
-$('start').onclick=camera;
-$('switch').onclick=async()=>{facing=facing==='environment'?'user':'environment';await camera();if(call&&local){call=peer.call($('pcid').value.trim(),local);call.on('close',()=>say('Flux fermé'))}};
-$('connect').onclick=()=>{let id=$('pcid').value.trim();if(!local){say('Activez d’abord la caméra.');return}if(!id){say('Saisissez l’ID PC.');return}call=peer.call(id,local);if(!call){say('Appel non créé.');return}call.on('close',()=>say('Connexion fermée.'));call.on('error',e=>say('Erreur appel : '+e.message));$('hang').disabled=false;say('Connexion envoyée au PC…')};
-$('hang').onclick=()=>{call?.close();call=null;$('hang').disabled=true;say('Déconnecté du PC.')};
-window.addEventListener('beforeunload',()=>{local?.getTracks().forEach(t=>t.stop());call?.close();peer?.destroy()});
-</script></main></body></html>
+const $=id=>document.getElementById(id);
+let peer=null,pcCall=null,localStream=null,pcId='';
+function setStatus(msg,kind=''){$('status').textContent=msg;$('status').className='status '+kind}
+function setBadge(text,live){$('badge').textContent=text;$('badge').className='badge'+(live?' live':'')}
+function savePcId(id){try{localStorage.setItem('gdn_phone_pc_id',id)}catch(_){} }
+function loadPcId(){try{return localStorage.getItem('gdn_phone_pc_id')||''}catch(_){return ''}}
+function makePeer(){
+  if(typeof Peer==='undefined'){setStatus('Bibliothèque PeerJS indisponible. Vérifiez Internet.','err');return false}
+  if(peer){try{peer.destroy()}catch(_){} peer=null}
+  peer=new Peer(undefined,{debug:1});
+  peer.on('open',id=>{setStatus('Téléphone prêt. ID téléphone : '+id,'ok')});
+  peer.on('error',e=>{setStatus('Erreur PeerJS : '+(e.type||e.message||e),'err')});
+  peer.on('disconnected',()=>setStatus('Connexion PeerJS interrompue.','err'));
+  return true;
+}
+async function startCamera(){
+  if(localStream)stopCamera();
+  const facing=$('facing').value;
+  try{
+    localStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:true});
+    $('preview').srcObject=localStream;
+    $('startCam').disabled=true;$('stopCam').disabled=false;
+    $('info').textContent='Caméra active · '+(facing==='environment'?'arrière':'avant');
+    setBadge('CAMÉRA ACTIVE',true);
+    if(pcCall)replaceCallStream();
+  }catch(e){setStatus('Impossible d’accéder à la caméra : '+e.message,'err');$('info').textContent='Autorisez la caméra et le microphone dans le navigateur.'}
+}
+function stopCamera(){
+  if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null}
+  $('preview').srcObject=null;$('startCam').disabled=false;$('stopCam').disabled=true;
+  $('info').textContent='Caméra arrêtée.';setBadge('CAMÉRA ARRÊTÉE',false);
+}
+async function replaceCallStream(){
+  if(!pcCall||!localStream)return;
+  try{const senders=pcCall.peerConnection?.getSenders?.()||[];for(const t of localStream.getTracks()){const s=senders.find(x=>x.track&&x.track.kind===t.kind);if(s)await s.replaceTrack(t)}}catch(e){setStatus('Flux caméra actif, mais changement de piste impossible.','err')}
+}
+function connectToPc(){
+  pcId=$('pcid').value.trim();
+  if(!pcId){setStatus('Entrez d’abord l’ID du PC.','err');return}
+  savePcId(pcId);
+  if(!peer&&!makePeer())return;
+  if(!localStream){setStatus('Activez d’abord la caméra.','err');return}
+  setStatus('Connexion au PC '+pcId+'…');
+  try{
+    if(pcCall){try{pcCall.close()}catch(_){}pcCall=null}
+    pcCall=peer.call(pcId,localStream,{metadata:{name:'GOOD DAV NET téléphone'}});
+    if(!pcCall){setStatus('Impossible de créer l’appel. Vérifiez l’ID PC.','err');return}
+    pcCall.on('stream',()=>{});
+    pcCall.on('close',()=>{setStatus('PC déconnecté.','err');$('disconnect').disabled=true;$('connect').disabled=false});
+    pcCall.on('error',e=>setStatus('Erreur de connexion au PC : '+e.message,'err'));
+    $('connect').disabled=true;$('disconnect').disabled=false;
+    setStatus('Téléphone connecté au PC. Flux vidéo envoyé.','ok');
+  }catch(e){setStatus('Erreur de connexion : '+e.message,'err')}
+}
+function disconnect(){if(pcCall){try{pcCall.close()}catch(_){}pcCall=null}$('disconnect').disabled=true;$('connect').disabled=false;setStatus('Téléphone déconnecté.');}
+$('startCam').onclick=startCamera;
+$('stopCam').onclick=stopCamera;
+$('connect').onclick=connectToPc;
+$('disconnect').onclick=disconnect;
+$('switchCam').onclick=async()=>{if(!localStream){await startCamera();return}$('facing').value=$('facing').value==='environment'?'user':'environment';await startCamera()};
+$('facing').onchange=()=>{if(localStream)startCamera()};
+$('mute').onclick=()=>{if(!localStream)return;const tracks=localStream.getAudioTracks();if(!tracks.length){$('mute').textContent='🎙 Aucun micro';return}const enabled=!tracks[0].enabled;tracks.forEach(t=>t.enabled=enabled);$('mute').textContent=enabled?'🔇 Micro désactivé':'🎙 Micro activé'};
+$('pcid').value=loadPcId();
+if(!window.isSecureContext&&location.protocol!=='file:')setStatus('Attention : la caméra nécessite généralement HTTPS ou localhost.','err');
+makePeer();
+window.addEventListener('beforeunload',()=>{try{pcCall?.close();peer?.destroy()}catch(_){}stopCamera()});
+</script>
+</body></html>
