@@ -1,0 +1,21 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GOOD DAV NET CAM PRO — Mobile</title><script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<style>
+:root{--cyan:#00e5ff;--bg:#060b16;--panel:#101a2b;--line:#263a57}*{box-sizing:border-box}body{margin:0;padding:16px;background:radial-gradient(circle at top,#142443,var(--bg) 55%);color:#eaf5ff;font:16px system-ui,Arial}main{max-width:650px;margin:auto}h1{color:var(--cyan);font-size:25px}section{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:16px;margin:13px 0}video{width:100%;background:#000;border-radius:10px;max-height:55vh;object-fit:contain}label{display:block;color:#a9bfd9;margin:12px 0 5px}input,select{width:100%;padding:13px;border:1px solid #334967;border-radius:9px;background:#07101e;color:#fff}button{padding:13px 15px;margin:5px 3px 5px 0;border:0;border-radius:9px;background:linear-gradient(100deg,var(--cyan),#61a9ff);color:#03111b;font-weight:750}button.secondary{background:#263954;color:white}button.red{background:#ff5470;color:#24040b}button:disabled{opacity:.45}#status{color:#ffd166;line-height:1.5}.id{color:var(--cyan);word-break:break-all}.note{color:#9eb5d3;font-size:13px}
+</style></head><body><main><h1>GOOD DAV NET CAM <span style="color:white">PRO</span></h1><p class="note">CAMÉRA MOBILE · TRANSMISSION EN DIRECT</p>
+<section><b>Votre ID téléphone :</b><p class="id" id="myid">Initialisation…</p><p id="status">Connexion au service…</p></section>
+<section><label>Choisir caméra</label><select id="facing"><option value="environment">Arrière</option><option value="user">Avant</option></select><label>Qualité vidéo</label><select id="quality"><option value="720">HD 720p</option><option value="480">480p (économique)</option><option value="1080">Full HD 1080p (si disponible)</option></select><button id="start">📷 Activer caméra</button><button id="switch" class="secondary" disabled>↻ Changer caméra</button><video id="preview" autoplay playsinline muted></video><p class="note">Gardez cette page ouverte et l'écran allumé pendant la transmission.</p></section>
+<section><label>ID PC (à copier depuis CAM_PC.html)</label><input id="pcid" placeholder="Collez ici l'identifiant du PC"><button id="connect">📡 Connecter au PC</button><button id="hang" class="red" disabled>Déconnecter</button></section>
+<p class="note">Autorisez l'accès à la caméra. La transmission est visible pendant que cette page reste ouverte.</p></main>
+<script>
+const $=id=>document.getElementById(id);let peer,local=null,call=null,facing='environment';
+function say(s){$('status').textContent=s}
+peer=new Peer(undefined,{debug:1});
+peer.on('open',id=>$('myid').textContent=id);
+peer.on('error',e=>say('Erreur PeerJS : '+e.type+'. Vérifiez Internet.'));
+async function camera(){try{if(call){call.close();call=null}if(local)local.getTracks().forEach(t=>t.stop());let h=Number($('quality').value);local=await navigator.mediaDevices.getUserMedia({video:{facingMode:facing,width:{ideal:h},height:{ideal:Math.round(h*9/16)}},audio:true});$('preview').srcObject=local;$('switch').disabled=false;say('Caméra activée. Vous pouvez connecter le PC.')}catch(e){say('Impossible d’ouvrir la caméra : '+e.name+' — '+e.message)}}
+$('start').onclick=camera;
+$('switch').onclick=async()=>{facing=facing==='environment'?'user':'environment';await camera();if(call&&local){call=peer.call($('pcid').value.trim(),local);call.on('close',()=>say('Flux fermé'))}};
+$('connect').onclick=()=>{let id=$('pcid').value.trim();if(!local){say('Activez d’abord la caméra.');return}if(!id){say('Saisissez l’ID PC.');return}call=peer.call(id,local);if(!call){say('Appel non créé.');return}call.on('close',()=>say('Connexion fermée.'));call.on('error',e=>say('Erreur appel : '+e.message));$('hang').disabled=false;say('Connexion envoyée au PC…')};
+$('hang').onclick=()=>{call?.close();call=null;$('hang').disabled=true;say('Déconnecté du PC.')};
+window.addEventListener('beforeunload',()=>{local?.getTracks().forEach(t=>t.stop());call?.close();peer?.destroy()});
+</script></main></body></html>
