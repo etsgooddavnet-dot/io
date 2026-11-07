@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -24,7 +23,7 @@ label{display:block;color:#a9bfd9;margin:10px 0 6px}input,select{width:100%;padd
 <input id="pcid" type="text" autocomplete="off" autocapitalize="characters" placeholder="Ex. GDN-PC-7K4M2Q">
 <div class="row"><button id="connect">📡 Connecter</button><button id="disconnect" class="red" disabled>⛔ Déconnecter</button></div>
 <p id="status" class="status">Prêt. Entrez l'ID affiché sur CAM_PC.html.</p>
-<p class="meta">L'ID du PC est à saisir exactement. La connexion utilise PeerJS/WebRTC.</p>
+<p class="meta">Saisissez l’ID affiché par <b>CAM_PC.html</b>. Le poste de surveillance peut être un PC <b>ou un autre téléphone</b>. La connexion utilise PeerJS/WebRTC.</p>
 <hr style="border-color:#263a57">
 <h2>02 · Caméra</h2>
 <label for="facing">Caméra utilisée</label>
@@ -46,17 +45,29 @@ function setStatus(msg,kind=''){$('status').textContent=msg;$('status').classNam
 function setBadge(text,live){$('badge').textContent=text;$('badge').className='badge'+(live?' live':'')}
 function savePcId(id){try{localStorage.setItem('gdn_phone_pc_id',id)}catch(_){} }
 function loadPcId(){try{return localStorage.getItem('gdn_phone_pc_id')||''}catch(_){return ''}}
+function peerOptions(){return{debug:1,config:{iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}]}}}
+let peerReady=false;
 function makePeer(){
   if(typeof Peer==='undefined'){setStatus('Bibliothèque PeerJS indisponible. Vérifiez Internet.','err');return false}
   if(peer){try{peer.destroy()}catch(_){} peer=null}
-  peer=new Peer(undefined,{debug:1});
-  peer.on('open',id=>{setStatus('Téléphone prêt. ID téléphone : '+id,'ok')});
-  peer.on('error',e=>{setStatus('Erreur PeerJS : '+(e.type||e.message||e),'err')});
-  peer.on('disconnected',()=>setStatus('Connexion PeerJS interrompue.','err'));
+  peerReady=false;
+  peer=new Peer(undefined,peerOptions());
+  peer.on('open',id=>{peerReady=true;setStatus('Téléphone prêt. ID téléphone : '+id,'ok')});
+  peer.on('error',e=>{peerReady=false;setStatus('Erreur PeerJS : '+(e.type||e.message||e),'err')});
+  peer.on('disconnected',()=>{
+    peerReady=false;
+    setStatus('Connexion PeerJS interrompue. Reconnexion…','err');
+    setTimeout(()=>{try{peer?.reconnect()}catch(_){}},800);
+  });
+  peer.on('close',()=>{peerReady=false});
   return true;
 }
 async function startCamera(){
   if(localStream)stopCamera();
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    setStatus('Ce navigateur ne permet pas l’accès caméra ici. Utilisez HTTPS ou localhost, puis autorisez la caméra.','err');
+    return;
+  }
   const facing=$('facing').value;
   try{
     localStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:facing},width:{ideal:1280},height:{ideal:720}},audio:true});
@@ -80,18 +91,19 @@ function connectToPc(){
   pcId=$('pcid').value.trim();
   if(!pcId){setStatus('Entrez d’abord l’ID du PC.','err');return}
   savePcId(pcId);
-  if(!peer&&!makePeer())return;
+  if(!peer&& !makePeer())return;
+  if(!peerReady){setStatus('Le service de connexion n’est pas encore prêt. Attendez une seconde puis réessayez.','err');return}
   if(!localStream){setStatus('Activez d’abord la caméra.','err');return}
-  setStatus('Connexion au PC '+pcId+'…');
+  setStatus('Connexion au poste '+pcId+'…');
   try{
     if(pcCall){try{pcCall.close()}catch(_){}pcCall=null}
-    pcCall=peer.call(pcId,localStream,{metadata:{name:'GOOD DAV NET téléphone'}});
-    if(!pcCall){setStatus('Impossible de créer l’appel. Vérifiez l’ID PC.','err');return}
+    pcCall=peer.call(pcId,localStream,{metadata:{name:'GOOD DAV NET téléphone',version:'V3-mobile'}});
+    if(!pcCall){setStatus('Impossible de créer l’appel. Vérifiez l’ID du poste.','err');return}
     pcCall.on('stream',()=>{});
-    pcCall.on('close',()=>{setStatus('PC déconnecté.','err');$('disconnect').disabled=true;$('connect').disabled=false});
-    pcCall.on('error',e=>setStatus('Erreur de connexion au PC : '+e.message,'err'));
+    pcCall.on('close',()=>{setStatus('Poste de surveillance déconnecté.','err');$('disconnect').disabled=true;$('connect').disabled=false});
+    pcCall.on('error',e=>{setStatus('Erreur de connexion au poste : '+(e.message||e),'err');$('disconnect').disabled=true;$('connect').disabled=false});
     $('connect').disabled=true;$('disconnect').disabled=false;
-    setStatus('Téléphone connecté au PC. Flux vidéo envoyé.','ok');
+    setStatus('Caméra connectée. Flux vidéo envoyé au poste de surveillance.','ok');
   }catch(e){setStatus('Erreur de connexion : '+e.message,'err')}
 }
 function disconnect(){if(pcCall){try{pcCall.close()}catch(_){}pcCall=null}$('disconnect').disabled=true;$('connect').disabled=false;setStatus('Téléphone déconnecté.');}
